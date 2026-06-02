@@ -22,6 +22,8 @@ app/page.tsx                         server component: fetch entidade ativa + re
 app/layout.tsx                       <html lang> + globals.css + fontes + <LenisProvider>
 components/{Navbar,Hero,…,Footer}.tsx
 components/LenisProvider.tsx          'use client' — ver PARTE D
+components/LoadingScreen.tsx          'use client' — assinatura S1 (PARTE C)
+components/CustomCursor.tsx           'use client' — assinatura S3 (PARTE C)
 app/admin/login/page.tsx
 app/admin/(protected)/layout.tsx     sidebar + guard: await isAuthenticated() senão redirect('/admin/login')
 app/admin/(protected)/{entidade}/[slug]/page.tsx   editor por tabs
@@ -52,6 +54,21 @@ lib/db.ts  lib/auth.ts  prisma/schema.prisma  prisma/seed.ts  types/{entidade}.t
      `<div data-theme="light">` **explícito** — nunca confies na herança.
    - Verifica na Fase 6 que o admin NÃO está escuro (ver checklist).
 
+   **Tokens de fallback (usar quando o research NÃO encontra paleta da marca).** Valores HSL
+   sem wrapper (Tailwind adiciona `hsl()`). Quase-preto, nunca preto puro:
+   ```css
+   [data-theme="dark"] {
+     --bg:      0 0% 4%;    /* fundo */
+     --surface: 0 0% 8%;    /* cartões */
+     --text:    0 0% 96%;
+     --muted:   0 0% 53%;   /* texto secundário */
+     --stroke:  0 0% 12%;   /* bordas/divisores */
+     --accent:  /* da marca; se ausente, um tom de marca neutro */ ;
+   }
+   ```
+   Quando o research **encontra** a paleta da marca, sobrepõe `--accent` (e ajusta `--bg`
+   se a marca tiver uma base cromática forte), mantendo a estrutura acima.
+
 2. **Título display:** serif, peso 300, `letter-spacing:-0.02em`,
    `font-size: clamp(2.2rem, 8vw, 5.5rem)`. O **último termo** do título sai em `<em>` itálico
    na cor `--accent`. Subtítulo a `0.58em`, `--text` @ 55%.
@@ -69,10 +86,53 @@ lib/db.ts  lib/auth.ts  prisma/schema.prisma  prisma/seed.ts  types/{entidade}.t
 6. **Hero:** `min-h-[100dvh]`, vídeo/imagem `object-cover` com `filter: brightness(0.42) saturate(0.75)`,
    `<video autoPlay muted loop playsInline poster=...>` quando há vídeo; senão `<img>` da hero real.
 
-### Tipografia por setor (sugestão)
-- Restaurante/hotel/luxo: Instrument Serif / Cormorant + Inter.
-- Arquitetura/B2B/tech: Georgia / Fraunces + Inter ou Geist.
+### Componentes-assinatura (GERAR SEMPRE — são o que dá "assinatura" ao site)
+
+Todos respeitam `prefers-reduced-motion` (desligam ou degradam para estático).
+
+**S1. Loading screen cinematográfica** — `components/LoadingScreen.tsx` (`'use client'`),
+overlay `fixed inset-0 z-[9999]` com `--bg`. Estado em `app/page.tsx`:
+`{isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}`.
+- **Contador** 000→100 via `requestAnimationFrame` ao longo de ~2700ms, `String(n).padStart(3,'0')`,
+  canto inferior-direito, display serif `text-8xl tabular-nums`.
+- **Palavras rotativas** ao centro (3 termos ligados ao negócio, ex.: restaurante →
+  ["Sabor","Tradição","Mesa"]), troca cada ~900ms, `font-display italic`.
+- **Barra de progresso** no fundo: track `h-[3px]` `--stroke`, preenchimento com
+  **accent gradient** (`linear-gradient(90deg, accent →` tom claro `)`), `scaleX(n/100)`,
+  `box-shadow: 0 0 8px <accent>/35`.
+- **Saída cinematográfica (não fade):** ao chegar a 100, 400ms depois anima
+  `clip-path: inset(0 0 0 0)` → `inset(0 0 100% 0)` (cortina a subir), GSAP `power3.inOut`,
+  e só então chama `onComplete`.
+
+**S2. Navbar pill flutuante** — `components/Navbar.tsx` (`'use client'`).
+`fixed top-0 inset-x-0 z-50 flex justify-center pt-4 md:pt-6`. Pílula interna:
+`inline-flex items-center rounded-full backdrop-blur-md border border-white/10 bg-surface px-2 py-2`.
+Ganha `shadow-md shadow-black/10` quando `scrollY > 100` (listener passivo).
+Conteúdo: logo (círculo com borda accent gradient + iniciais em `font-display italic`) ·
+divisor `w-px h-5` `--stroke` · links (`rounded-full px-4 py-2`, ativo `bg-stroke/50`) ·
+botão CTA do objetivo de conversão com borda accent gradient no hover.
+
+**S3. Cursor personalizado** — `components/CustomCursor.tsx` (`'use client'`, no layout público).
+Dois `div` `fixed pointer-events-none z-[9998]`: um ponto pequeno (segue exato) e um anel
+maior (segue com **lerp** ~0.15). Atualiza no `gsap.ticker`:
+`ringX += (mouseX - ringX) * 0.15`. Aumenta o anel no hover de links/botões.
+Desliga em touch/coarse pointer (`matchMedia('(pointer: coarse)')`) e em reduced-motion.
+
+**S4. Grain overlay global** — uma linha no `app/layout.tsx` (site público): `div`
+`fixed inset-0 pointer-events-none z-[1]` com textura `feTurbulence` (SVG data-URI) ou PNG de ruído,
+`opacity: 0.035`, `mix-blend-mode: overlay`. Dá textura de filme a todo o site sem custo de perf.
+(Não aplicar no backoffice.)
+
+### Tipografia
+**Default universal (usar sempre, salvo indicação do research):**
+- Display (títulos + palavra em itálico): **Instrument Serif** (italic 400).
+- Body: **Inter** (300–700).
+- Vars: `--font-display: 'Instrument Serif', serif` · `--font-body: 'Inter', sans-serif`.
+
+Só substitui o default quando o research indicar um setor com identidade própria:
+- Arquitetura/B2B/tech: Fraunces / Georgia + Inter ou Geist.
 - Clínica/wellness: serif suave + sans humanista.
+- Caso a marca tenha tipografia própria identificável → usa-a, com Inter/Instrument Serif de fallback.
 
 ---
 
@@ -151,6 +211,8 @@ model Feature { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidad
 ## Checklist de entrega
 - [ ] schema + migration + seed com 1 entidade real preenchida.
 - [ ] Frontend responsivo com coreografia de scroll completa.
+- [ ] **Componentes-assinatura (PARTE C):** LoadingScreen (contador+clip-path), Navbar pill,
+      CustomCursor, grain overlay — todos com fallback reduced-motion / touch.
 - [ ] Backoffice: login + CRUD + upload funcionais.
 - [ ] **Tema scoped:** site público dark (`data-theme="dark"`), admin claro
       (`data-theme="light"`) — confirma que `/admin` NÃO está escuro.
