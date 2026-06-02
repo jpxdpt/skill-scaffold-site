@@ -71,8 +71,9 @@ Segue `reference/research-playbook.md` § "Recolha de imagens". Resumo:
   (tamanho > 10KB, content-type image/*). Descarta logos minúsculos e ícones.
 - Escolhe **1 hero** (landscape, alta resolução) + **6-10 de galeria** (varia wide/tall).
 - Escreve `public/images/MANIFEST.json`: para cada imagem → `{ file, sourceUrl, sourcePage, alt, credit, role }`.
-- ⚖️ **Nota legal (inclui no relatório):** imagens de terceiros são para **protótipo/demo**.
-  Antes de produção, substituir por imagens licenciadas/próprias. Mantém atribuição no MANIFEST.
+- ⚖️ **Legal:** imagens de terceiros são placeholders de **protótipo**. Isto é tratado como
+  entregável formal na Fase 6 (`LEGAL_NOTICE.md` no root, com definição de "produção") — não
+  apenas uma frase no relatório. Mantém atribuição/origem de cada imagem no MANIFEST.
 - Se `--no-images`: salta esta fase, usa gradientes/placeholders e assinala-o.
 
 ### Fase 3 — Síntese do Brief (PART A)
@@ -81,11 +82,24 @@ restaurante→`Prato`/`Menu`, imobiliária→`Imovel`, clínica→`Servico`, hot
 Confirma o brief com o utilizador em 1 mensagem curta antes de construir (mostra: marca,
 objetivo, entidade, paleta, nº de imagens recolhidas). Avança se aprovado.
 
-### Fase 4 — Scaffold (stack bloqueado)
-Constrói segundo `reference/stack-spec.md` — PARTES B (stack), C (visual), D (scroll), E (backoffice).
-Espelha a arquitetura: `app/page.tsx` (server, fetch entidade ativa) → `Navbar + Hero +
-secções + Footer`; backoffice protegido por JWT com editor por tabs; rotas `/api/admin/*`.
+### Fase 4 — Diagnóstico + Scaffold (stack bloqueado)
+
+**4a. Diagnóstico ANTES de escrever código (obrigatório):**
+- Se vais gerar dentro de um projeto Next.js existente, lê `node_modules/next/dist/docs/`
+  para as APIs que vais tocar (App Router, route handlers, `cookies()`, metadata).
+- Confirma a versão de Next/Tailwind/Prisma no `package.json` e adapta a sintaxe a ELA
+  (não à memória). Anota qualquer breaking change relevante antes de começar.
+- Num projeto novo: scaffold base primeiro (`create-next-app` equivalente do stack), confirma
+  que `npm run build` passa **vazio**, e só depois adicionas as features. Assim isolas erros
+  do scaffold dos erros do teu código.
+
+**4b. Construção:** segundo `reference/stack-spec.md` — PARTES B (stack), C (visual),
+D (scroll), E (backoffice). Espelha a arquitetura: `app/page.tsx` (server, fetch entidade
+ativa) → `Navbar + Hero + secções + Footer`; backoffice protegido por JWT com editor por
+tabs; rotas `/api/admin/*`. Tema **scoped** (dark público / light admin — PARTE C ponto 1).
 Não introduzas libs fora do stack sem justificar.
+Constrói por camadas e corre `npm run build` ao fim de cada camada grande (schema → frontend →
+backoffice) em vez de só no fim — apanhas o erro perto da causa.
 
 ### Fase 5 — Seed com conteúdo real
 `prisma/seed.ts` cria 1 entidade ativa preenchida com os **factos reais** da Fase 1 e
@@ -93,12 +107,35 @@ referencia as **imagens reais** da Fase 2 (paths de `public/images/` + alt do MA
 Corre migration + seed.
 
 ### Fase 6 — Verificar & entregar
-- `npm run build` (ou `next dev`) para confirmar que arranca sem erros.
+
+**6a. Build com ciclo de correção (não desistas no 1º erro):**
+- Corre `npm run build`. Se falhar:
+  1. Lê o erro e classifica: breaking change do Next (→ consulta `node_modules/next/dist/docs/`),
+     erro de tipo, import errado, ou config Tailwind/Prisma.
+  2. Corrige a causa e volta a correr. **Até 3 iterações.**
+  3. Se ao fim de 3 não resolver, **pára** e reporta ao utilizador: o erro exato, o que tentaste,
+     e a tua hipótese. Não entres em loop infinito nem "mascares" o erro (ex.: `// @ts-ignore`,
+     desligar strict, apagar a feature) sem o dizer.
+- Verifica visualmente o **scoping de tema**: abre `/` (deve estar dark) e `/admin` (deve estar
+  claro/legível). Se o admin estiver escuro → bug de tema (PARTE C ponto 1), corrige.
 - Respeita `prefers-reduced-motion`; vídeo/hero com `poster`; imagens com lazy load.
-- **Relatório final** ao utilizador:
+
+**6b. Gera `LEGAL_NOTICE.md` no root do projeto** (entregável obrigatório quando se usaram
+imagens de terceiros). Conteúdo:
+> ## Aviso sobre imagens
+> As imagens em `public/images/` (exceto fallbacks de stock licenciado) foram recolhidas de
+> fontes públicas como placeholders de **protótipo**. Ver origem de cada uma em
+> `public/images/MANIFEST.json`.
+>
+> **"Produção" = qualquer site acessível publicamente** (deploy num domínio, link partilhado,
+> staging exposto). Antes disso, substitui estas imagens por imagens **próprias ou
+> licenciadas** e atualiza o MANIFEST. Correr localmente (`localhost`) não conta como produção.
+
+**6c. Relatório final** ao utilizador:
   - O que foi investigado (fontes principais).
-  - Quantas imagens reais foram usadas + a nota legal.
+  - Quantas imagens reais foram usadas, de que fontes + apontar para `LEGAL_NOTICE.md`.
   - Campos que ficaram em placeholder (a preencher no backoffice).
+  - Estado do build (passou / erros pendentes).
   - Como correr o site e entrar no `/admin`.
 
 ---

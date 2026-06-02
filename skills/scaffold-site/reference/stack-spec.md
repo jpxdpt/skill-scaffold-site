@@ -41,8 +41,16 @@ lib/db.ts  lib/auth.ts  prisma/schema.prisma  prisma/seed.ts  types/{entidade}.t
 
 ## PARTE C — SISTEMA VISUAL (a "beleza", sempre)
 
-1. **Tema dark-first.** CSS custom properties em `globals.css` via `@theme`. Tudo deriva dos
-   tokens do brief: `--bg --surface --text --accent --muted` (muted = text @ 40-60%).
+1. **Tema dark-first — COM SCOPING OBRIGATÓRIO.** CSS custom properties em `globals.css`.
+   ⚠️ No Tailwind v4 o `@theme` injeta as vars em `:root` (global) → **se puseres os tokens
+   dark em `@theme` puro, o backoffice herda o dark e parte**. Solução obrigatória:
+   - Define os tokens *cromáticos* (bg/surface/text/accent/muted) em **`[data-theme="dark"]`**
+     e a variante clara em **`[data-theme="light"]`** (ambos em `globals.css`), e usa
+     `@theme inline` apenas para mapear os nomes Tailwind às vars (não para fixar valores de cor).
+   - `app/layout.tsx` (site público): `<html data-theme="dark">`.
+   - `app/admin/(protected)/layout.tsx` (backoffice): envolve o conteúdo num
+     `<div data-theme="light">` **explícito** — nunca confies na herança.
+   - Verifica na Fase 6 que o admin NÃO está escuro (ver checklist).
 
 2. **Título display:** serif, peso 300, `letter-spacing:-0.02em`,
    `font-size: clamp(2.2rem, 8vw, 5.5rem)`. O **último termo** do título sai em `<em>` itálico
@@ -100,6 +108,8 @@ Sempre `gsap.context` + cleanup.
 - **/admin/login:** form → `POST /api/admin/auth` → `bcrypt.compare` → `signToken()` → set cookie.
 - **(protected)/layout:** `await isAuthenticated()` senão `redirect('/admin/login')`.
   Sidebar **branca** (light theme — o admin é utilitário): Dashboard + {Entidade} + Logout.
+  ⚠️ Envolve TODO o conteúdo do admin num `<div data-theme="light" className="...">` explícito
+  (ver PARTE C ponto 1) — caso contrário herda os tokens dark do site público e fica ilegível.
 - **Editor por TABS** para a entidade:
   - **Geral** — campos de texto (nome, subtitulo, descricao, regiao/localização, preço).
   - **Galeria** — upload + reordenar (ordem) + toggle `wide` + alt.
@@ -142,5 +152,8 @@ model Feature { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidad
 - [ ] schema + migration + seed com 1 entidade real preenchida.
 - [ ] Frontend responsivo com coreografia de scroll completa.
 - [ ] Backoffice: login + CRUD + upload funcionais.
+- [ ] **Tema scoped:** site público dark (`data-theme="dark"`), admin claro
+      (`data-theme="light"`) — confirma que `/admin` NÃO está escuro.
 - [ ] `prefers-reduced-motion` respeitado; vídeo com poster; imagens lazy.
+- [ ] **`LEGAL_NOTICE.md` no root** do projeto gerado (ver SKILL Fase 6).
 - [ ] Sem libs fora do stack bloqueado (ou justificadas).
