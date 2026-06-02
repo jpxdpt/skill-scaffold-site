@@ -134,6 +134,20 @@ Só substitui o default quando o research indicar um setor com identidade própr
 - Clínica/wellness: serif suave + sans humanista.
 - Caso a marca tenha tipografia própria identificável → usa-a, com Inter/Instrument Serif de fallback.
 
+### Regras de bom gosto (NÃO-NEGOCIÁVEIS)
+- **PROIBIDO usar emojis** em qualquer texto de UI — títulos, cards, eyebrows, botões, labels,
+  features, seed da BD. Nada de 🍽️ 🏨 ✨ 🎯 etc. Emoji num título de card é erro, não decoração.
+- **Sistema de ícones = Phosphor** (`@phosphor-icons/react`), peso `thin`/`light`, herdam
+  `currentColor`. O campo `icone` da BD guarda o **nome do ícone Phosphor** (ex.: `"MapPin"`,
+  `"ForkKnife"`, `"Mountains"`), nunca um emoji nem um caractere unicode. No frontend mapeia
+  o nome → componente Phosphor. Se não houver ícone adequado, usa **nenhum** (texto limpo) em
+  vez de um emoji.
+- **Casing com intenção:** eyebrows e labels de secção em `UPPERCASE` com `tracking` largo;
+  títulos em sentence case (serif). Contraste de casing cria hierarquia (à normalisboring.es).
+- **Contenção > efeito:** muito whitespace, a fotografia domina, a UI cala-se. Sem sombras
+  pesadas, sem bordas grossas, sem gradientes garridos fora do `--accent`.
+- **Números/stats** em `tabular-nums`. Texto secundário via `--muted`, nunca cinza random.
+
 ---
 
 ## PARTE D — COREOGRAFIA DE SCROLL (GSAP + ScrollTrigger + Lenis)
@@ -161,6 +175,32 @@ Cada bloco: `ScrollTrigger` `{ trigger, start:'top 80%', once:true }` →
 - Opcional: 1 secção `pin` (`pinSpacing`) para um momento de destaque.
 Sempre `gsap.context` + cleanup.
 
+### Vocabulário de transições (estilo normalisboring.es — contidas, lentas, "premium")
+Filosofia: movimento **lento e suave** (durações 0.8–1.4s, `ease: 'expo.out'` ou
+`'power3.out'`, NUNCA bounce/elastic). A transição revela conteúdo, não chama atenção a si.
+
+- **T1 — Revelação de texto por máscara (headings):** cada linha do título dentro de um
+  wrapper `overflow-hidden`; a linha entra de `y:110%` → `0%` com `ScrollTrigger` e
+  `stagger:0.08`. (Para multi-linha, parte o texto por linha; SplitText opcional.) É o efeito
+  de "texto que sobe debaixo de uma cortina" — assinatura deste género de site.
+- **T2 — Revelação de imagem por clip-path:** ao entrar no viewport, imagem anima
+  `clip-path: inset(100% 0 0 0)` → `inset(0 0 0 0)` (cortina vertical), 1.1s `expo.out`,
+  com a `<img>` interna a fazer `scale(1.15)`→`scale(1)` em simultâneo (efeito de "lente").
+- **T3 — Hover de card de projeto:** imagem `scale(1.04)` + a label do título desliza/fade
+  por baixo de uma máscara (overflow-hidden). **Sem emoji, sem ícone** na label — só o nome.
+  Cursor cresce (S3). Transição `cubic-bezier(0.32,0.72,0,1)`, ~0.6s.
+- **T4 — Transição de página/rota (wipe):** se o site tiver páginas (ex.: detalhe de projeto),
+  um painel `fixed inset-0` com `--bg` (ou `--accent`) faz wipe: entra `scaleY(0)`→`1` (origem
+  baixo), troca a rota por trás, sai `scaleY(1)`→`0` (origem topo). Liga ao router; em SPA
+  usa um overlay controlado por estado. Mantém o Lenis a fazer `scrollTo(0)` no meio do wipe.
+- **T5 — Sticky/horizontal:** uma secção `pin` onde o conteúdo se move em `x` com `scrub`
+  (galeria horizontal ou texto grande a atravessar). Usar com parcimónia (1 por página).
+
+Todas estas transições degradam para estado final estático sob `prefers-reduced-motion`.
+
+> ⚠️ Não consegui capturar o JS exato do normalisboring.es (transições vivem em runtime).
+> Isto codifica as TÉCNICAS do género; se quiseres replicar um momento específico, descreve-o.
+
 ---
 
 ## PARTE E — BACKOFFICE (CMS, sempre)
@@ -174,7 +214,8 @@ Sempre `gsap.context` + cleanup.
   - **Geral** — campos de texto (nome, subtitulo, descricao, regiao/localização, preço).
   - **Galeria** — upload + reordenar (ordem) + toggle `wide` + alt.
   - **Media** — vídeo/imagem da hero.
-  - **Features/Includes** — ícone (Phosphor) + label + descrição + ordem.
+  - **Features/Includes** — ícone (campo guarda **nome Phosphor**, ex.: `"MapPin"`; NUNCA
+    emoji) + label + descrição + ordem. Selector de ícone Phosphor no admin, não input livre.
   - **Stats** — 4 métricas (label + valor).
   Cada tab faz PATCH à sua fatia. Save otimista + toast de feedback.
 - **API:** `requireAuth(req)` no topo de **todas** as rotas `/api/admin/*`. Validação de input.
@@ -206,6 +247,7 @@ model {Entidade} {
 }
 model Foto    { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidade} @relation(fields:[{ent}Id],references:[id],onDelete:Cascade) path String alt String wide Boolean @default(false) ordem Int @default(0) }
 model Feature { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidade} @relation(fields:[{ent}Id],references:[id],onDelete:Cascade) icone String label String descricao String ordem Int @default(0) }
+// `icone` = nome de ícone Phosphor (ex.: "MapPin"), NUNCA emoji/unicode.
 ```
 
 ## Checklist de entrega
@@ -217,5 +259,7 @@ model Feature { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidad
 - [ ] **Tema scoped:** site público dark (`data-theme="dark"`), admin claro
       (`data-theme="light"`) — confirma que `/admin` NÃO está escuro.
 - [ ] `prefers-reduced-motion` respeitado; vídeo com poster; imagens lazy.
+- [ ] **ZERO emojis** em qualquer texto de UI/seed; ícones = Phosphor (campo `icone` = nome Phosphor).
+- [ ] Transições do vocabulário aplicadas (texto por máscara, clip-path em imagens) — contidas, lentas.
 - [ ] **`LEGAL_NOTICE.md` no root** do projeto gerado (ver SKILL Fase 6).
 - [ ] Sem libs fora do stack bloqueado (ou justificadas).

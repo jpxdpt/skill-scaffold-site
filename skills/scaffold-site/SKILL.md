@@ -111,7 +111,8 @@ backoffice) em vez de só no fim — apanhas o erro perto da causa.
 ### Fase 5 — Seed com conteúdo real
 `prisma/seed.ts` cria 1 entidade ativa preenchida com os **factos reais** da Fase 1 e
 referencia as **imagens reais** da Fase 2 (paths de `public/images/` + alt do MANIFEST).
-Corre migration + seed.
+⚠️ **Sem emojis** em nenhum campo. O campo `icone` das Features guarda o **nome de um ícone
+Phosphor** (ex.: `"ForkKnife"`, `"MapPin"`), nunca um emoji. Corre migration + seed.
 
 ### Fase 6 — Verificar & entregar
 
@@ -154,4 +155,7 @@ imagens de terceiros). Conteúdo:
 - **Não inventes** moradas, telefones, preços, ratings. Vazio honesto > facto falso.
 - **A beleza é não-negociável** — o sistema visual e a coreografia de scroll da spec
   aplicam-se sempre, seja qual for o negócio.
+- **ZERO emojis na UI.** Nunca uses emojis em títulos, cards, labels, botões ou seed —
+  parece amador. Ícones são sempre Phosphor (ver `stack-spec.md` → Regras de bom gosto).
+- **Transições contidas e lentas** (vocabulário em `stack-spec.md` PARTE D) — premium, não chamativo.
 - **O backoffice é utilitário** — clareza acima de estética; o dark cinematográfico é só no site público.
