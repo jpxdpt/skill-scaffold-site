@@ -38,6 +38,8 @@ Transforma **um nome de negócio** num site pronto a editar:
 
 > Lê `reference/stack-spec.md` (stack + sistema visual + scroll) e
 > `reference/research-playbook.md` (como investigar e buscar imagens) **antes de construir**.
+> Componentes de animação prontos em `reference/snippets/` — **copia e adapta** de lá
+> (não reescrevas SplitText/cursor/preloader/flip-media do zero).
 > ⚠️ Antes de escrever código Next.js: lê `node_modules/next/dist/docs/` — esta versão tem breaking changes.
 
 ---
@@ -104,6 +106,9 @@ objetivo, entidade, paleta, nº de imagens recolhidas). Avança se aprovado.
 D (scroll), E (backoffice). Espelha a arquitetura: `app/page.tsx` (server, fetch entidade
 ativa) → `Navbar + Hero + secções + Footer`; backoffice protegido por JWT com editor por
 tabs; rotas `/api/admin/*`. Tema **scoped** (dark público / light admin — PARTE C ponto 1).
+**Transições:** aplica o NÚCLEO do vocabulário (PARTE D) copiando de `reference/snippets/`
+(Preloader, SplitTextReveal, FlipMedia, CustomCursor, DirectionAwareButton, LinkRollover,
+LenisProvider); os situacionais (HorizontalScroll, PageTransition) só se o layout pedir.
 Não introduzas libs fora do stack sem justificar.
 Constrói por camadas e corre `npm run build` ao fim de cada camada grande (schema → frontend →
 backoffice) em vez de só no fim — apanhas o erro perto da causa.

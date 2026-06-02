@@ -10,7 +10,8 @@ qualidade de engenharia + visual. Só o BRIEF (PART A, na SKILL) varia.
 ## PARTE B — STACK (não negociável)
 
 Next.js (App Router) + React + TypeScript + **Tailwind v4** (`@tailwindcss/postcss`, `@theme`).
-- **Animação:** GSAP + ScrollTrigger + **Lenis** (smooth scroll).
+- **Animação:** GSAP + ScrollTrigger + **SplitText** + **MorphSVGPlugin** (todos grátis no
+  GSAP ≥3.13) + **Lenis** (smooth scroll, **só desktop** — desliga em `pointer:coarse`/<768px).
 - **Dados:** Prisma + **SQLite** (adapter `@prisma/adapter-better-sqlite3`). Entidade + relações via `slug`, campo `ativo`.
 - **Auth:** JWT (`jose`) em cookie httpOnly `admin_session`, exp 7d. `bcryptjs` na password.
 - **Ícones:** `@phosphor-icons/react`.
@@ -175,31 +176,53 @@ Cada bloco: `ScrollTrigger` `{ trigger, start:'top 80%', once:true }` →
 - Opcional: 1 secção `pin` (`pinSpacing`) para um momento de destaque.
 Sempre `gsap.context` + cleanup.
 
-### Vocabulário de transições (estilo normalisboring.es — contidas, lentas, "premium")
-Filosofia: movimento **lento e suave** (durações 0.8–1.4s, `ease: 'expo.out'` ou
-`'power3.out'`, NUNCA bounce/elastic). A transição revela conteúdo, não chama atenção a si.
+### Vocabulário de transições (técnicas VERIFICADAS do normalisboring.es)
+> Baseado na engenharia reversa real do site (preloader.js, main.js, animations.js,
+> rollovers.js, scroll.js). Eles usam GSAP 3.12 + SplitText + MorphSVG + Lenis + Swup.
+> Aqui está traduzido para **React + Next (App Router)**. Implementações prontas em
+> `reference/snippets/` — **copia e adapta de lá** em vez de reescrever do zero.
 
-- **T1 — Revelação de texto por máscara (headings):** cada linha do título dentro de um
-  wrapper `overflow-hidden`; a linha entra de `y:110%` → `0%` com `ScrollTrigger` e
-  `stagger:0.08`. (Para multi-linha, parte o texto por linha; SplitText opcional.) É o efeito
-  de "texto que sobe debaixo de uma cortina" — assinatura deste género de site.
-- **T2 — Revelação de imagem por clip-path:** ao entrar no viewport, imagem anima
-  `clip-path: inset(100% 0 0 0)` → `inset(0 0 0 0)` (cortina vertical), 1.1s `expo.out`,
-  com a `<img>` interna a fazer `scale(1.15)`→`scale(1)` em simultâneo (efeito de "lente").
-- **T3 — Hover de card de projeto:** imagem `scale(1.04)` + a label do título desliza/fade
-  por baixo de uma máscara (overflow-hidden). **Sem emoji, sem ícone** na label — só o nome.
-  Cursor cresce (S3). Transição `cubic-bezier(0.32,0.72,0,1)`, ~0.6s.
-- **T4 — Transição de página/rota (wipe):** se o site tiver páginas (ex.: detalhe de projeto),
-  um painel `fixed inset-0` com `--bg` (ou `--accent`) faz wipe: entra `scaleY(0)`→`1` (origem
-  baixo), troca a rota por trás, sai `scaleY(1)`→`0` (origem topo). Liga ao router; em SPA
-  usa um overlay controlado por estado. Mantém o Lenis a fazer `scrollTo(0)` no meio do wipe.
-- **T5 — Sticky/horizontal:** uma secção `pin` onde o conteúdo se move em `x` com `scrub`
-  (galeria horizontal ou texto grande a atravessar). Usar com parcimónia (1 por página).
+Filosofia: movimento **lento e contido** (durações 0.8–1.4s, `ease: 'expo.out'`/`'power3.out'`,
+NUNCA bounce/elastic). A transição revela conteúdo; não chama atenção a si própria.
 
-Todas estas transições degradam para estado final estático sob `prefers-reduced-motion`.
+**Plugins GSAP** (todos grátis no GSAP ≥3.13, já no stack): regista client-side
+`gsap.registerPlugin(ScrollTrigger, SplitText, MorphSVGPlugin)`. Imports: `gsap/SplitText`,
+`gsap/MorphSVGPlugin`.
 
-> ⚠️ Não consegui capturar o JS exato do normalisboring.es (transições vivem em runtime).
-> Isto codifica as TÉCNICAS do género; se quiseres replicar um momento específico, descreve-o.
+#### NÚCLEO — gerar SEMPRE (qualquer negócio)
+- **T1 — Revelação de texto por linhas (SplitText):** `SplitText` em `lines` (e `chars` nos
+  títulos grandes), cada linha em wrapper `overflow-hidden`, entra `y:110%`→`0%`,
+  `stagger:0.08` (alternado par/ímpar nos títulos para ritmo). Snippet: `SplitTextReveal.tsx`.
+- **T2 — Media com clip-path + parallax (FlipMedia):** `clip-path: inset(100% 0 0 0)`→
+  `inset(0)` (direções leftRight/rightLeft/upDown), 1.1s `expo.out`, `<img>` interna
+  `scale(1.15)`→`1`; depois parallax `y` leve com `scrub`. Snippet: `FlipMedia.tsx`.
+- **T3 — Preloader real+fake progress:** logo em `chars` (SplitText, `power3.out` stagger),
+  barra que mistura **progresso real de assets** com *fake progress* suave; deteta 1ª carga
+  via `localStorage` (curto nas seguintes); saída por clip-path (cortina a subir). Snippet:
+  `Preloader.tsx`. (Substitui/expande o S1 da PARTE C.)
+- **T4 — Cursor com lerp + expand:** ponto + anel com `lerp`, **cresce em elementos com
+  `data-text`/links** (mostra o texto dentro do anel). Desliga em coarse pointer. Snippet:
+  `CustomCursor.tsx`.
+- **T5 — Botão com direção do rato:** detecta de que lado (dos 4) o rato entra/sai e anima o
+  preenchimento de fundo via `--posX/--posY`; texto duplicado desliza. Snippet:
+  `DirectionAwareButton.tsx`.
+- **T6 — Link rollover por máscara:** `SplitText`, duplica as linhas; no hover a 1ª sobe e a
+  cópia entra por baixo (`overflow-hidden`). Snippet: `LinkRollover.tsx`.
+- **T7 — Hover de card:** imagem `scale(1.04)` + label do título por máscara. **Sem emoji,
+  sem ícone** na label — só o nome. `cubic-bezier(0.32,0.72,0,1)`, ~0.6s.
+
+#### SITUACIONAL — só quando o layout/setor pede (não forçar)
+- **T8 — Scroll horizontal com pin:** secção `pin` no `main`, conteúdo move em `x` com `scrub`
+  (timeline GSAP anima width/height dos itens em sequência). 1 por página, no máximo.
+  Bom para portefólios/galerias; evitar em sites sóbrios (clínica, B2B). Snippet: `HorizontalScroll.tsx`.
+- **T9 — Transição de página (overlay wipe GSAP):** só se o site tiver múltiplas rotas.
+  Painel `fixed inset-0` com `--bg`/`--accent`: out `scaleY(0)`→`1` (origem baixo), troca a
+  rota, in `scaleY(1)`→`0` (origem topo); `lenis.scrollTo(0)` no meio. Snippet:
+  `PageTransition.tsx`. (Os sites são single-page por defeito → normalmente NÃO se usa.)
+- **T10 — MorphSVG no footer:** morph do logo/forma no footer ao entrar. Detalhe de luxo,
+  opcional.
+
+Todas degradam para o **estado final estático** sob `prefers-reduced-motion`.
 
 ---
 
