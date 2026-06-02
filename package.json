@@ -1,0 +1,29 @@
+{
+  "name": "scaffold-site-skill",
+  "version": "1.0.0",
+  "description": "Claude Code skill: nome de um negócio → website single-page cinematográfico + backoffice, com research e imagens reais da web. Stack Next.js + GSAP + ScrollTrigger + Lenis + Prisma/SQLite.",
+  "bin": {
+    "scaffold-site-skill": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=16.7"
+  },
+  "keywords": [
+    "claude-code",
+    "claude",
+    "skill",
+    "scaffold",
+    "nextjs",
+    "gsap",
+    "website-generator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpxdpt/skill-scaffold-site.git"
+  },
+  "license": "MIT"
+}

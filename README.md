@@ -12,18 +12,24 @@ Lenis + Prisma/SQLite + JWT**.
 A skill é instalada em `~/.claude/skills/scaffold-site` (a localização global de skills do
 Claude Code), por isso fica disponível em **qualquer projeto** nesse PC.
 
-### Windows
-```powershell
-git clone <URL-DO-REPO> scaffold-site-skill
-cd scaffold-site-skill
-powershell -ExecutionPolicy Bypass -File install.ps1
+### Recomendado — `npx` (Windows / macOS / Linux, sem clonar)
+
+```bash
+npx github:jpxdpt/skill-scaffold-site
 ```
 
-### macOS / Linux
-```bash
-git clone <URL-DO-REPO> scaffold-site-skill
-cd scaffold-site-skill
-bash install.sh
+Um único comando, multiplataforma, sem problemas de execution policy do PowerShell.
+Para **atualizar**, corre o mesmo comando outra vez (substitui a versão anterior).
+
+> Se algum dia for publicado no npm, fica também: `npx scaffold-site-skill`.
+
+### Alternativa — clonar + script
+
+```powershell
+git clone https://github.com/jpxdpt/skill-scaffold-site.git
+cd skill-scaffold-site
+powershell -ExecutionPolicy Bypass -File install.ps1   # Windows
+# bash install.sh                                       # macOS / Linux
 ```
 
 Reinicia o Claude Code se já estiver aberto.
@@ -44,12 +50,15 @@ skills/scaffold-site/
   SKILL.md                       # orquestrador (pipeline de 6 fases)
   reference/stack-spec.md        # stack + sistema visual + scroll + backoffice (bloqueado)
   reference/research-playbook.md # como investigar e buscar imagens reais
-install.ps1 / install.sh         # copiam a skill para ~/.claude/skills
+bin/install.js                   # instalador multiplataforma (usado pelo npx)
+install.ps1 / install.sh         # alternativa para quem clona o repo
+package.json                     # expõe o bin para o npx
 ```
 
 ## Atualizar
 
-Faz `git pull` e corre o script de install outra vez (substitui a versão anterior).
+Corre `npx github:jpxdpt/skill-scaffold-site` outra vez (substitui a versão anterior).
+Se clonaste, faz `git pull` e corre o script de install.
 
 ## Nota legal
 
