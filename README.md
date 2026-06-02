@@ -1,4 +1,4 @@
-# scaffold-site — Claude Code skill
+# scaffold-site — Claude Code & OpenCode skill
 
 Dá o **nome de um negócio** e o Claude Code constrói um website single-page com hero
 cinematográfica + backoffice (CMS), usando **informação e imagens reais** que vai buscar à
@@ -9,8 +9,10 @@ Lenis + Prisma/SQLite + JWT**.
 
 ## Instalar
 
-A skill é instalada em `~/.claude/skills/scaffold-site` (a localização global de skills do
-Claude Code), por isso fica disponível em **qualquer projeto** nesse PC.
+Funciona em **Claude Code** e **OpenCode** — ambos usam o mesmo formato `SKILL.md`.
+O instalador coloca a skill em `~/.claude/skills/scaffold-site` (lido por ambos os agentes)
+e, se o OpenCode estiver presente, também em `~/.config/opencode/skills/scaffold-site`.
+Fica disponível em **qualquer projeto** nesse PC.
 
 ### Recomendado — `npx` (Windows / macOS / Linux, sem clonar)
 
@@ -42,6 +44,10 @@ Reinicia o Claude Code se já estiver aberto.
 /scaffold-site <nome> --research-only      # só investiga + recolhe imagens
 /scaffold-site <nome> --no-images          # salta imagens reais
 ```
+
+No **OpenCode** não há slash-command próprio: descreve a tarefa ao agente
+("faz o scaffold do site para o restaurante X") e ele invoca a skill `scaffold-site`
+via a ferramenta nativa de skills.
 
 ## O que está no repo
 
