@@ -1,6 +1,13 @@
 ---
 name: scaffold-site
-description: Nome de um negócio → website single-page cinematográfico + backoffice (CMS). Faz research na web sobre o negócio, vai buscar imagens REAIS (site oficial, Google, TripAdvisor, Instagram), e gera tudo no stack Next.js + GSAP + ScrollTrigger + Lenis + Prisma/SQLite.
+description: >-
+  Gera um website single-page cinematográfico + backoffice (CMS) a partir do NOME de um
+  negócio. Usar SEMPRE que o utilizador quer criar/construir/fazer um site, página ou
+  landing page para uma empresa, marca, restaurante, hotel, clínica, loja, imobiliária,
+  estúdio ou qualquer negócio (ex.: "cria um site para o restaurante X", "faz uma landing
+  page para a clínica Y", "build a website for Z"). Faz research na web sobre o negócio e
+  vai buscar IMAGENS REAIS (site oficial, Google, TripAdvisor, Instagram) em vez de
+  placeholders. Stack: Next.js + GSAP + ScrollTrigger + Lenis + Prisma/SQLite + JWT.
 trigger: /scaffold-site
 ---
 
