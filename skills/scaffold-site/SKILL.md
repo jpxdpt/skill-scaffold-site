@@ -153,6 +153,52 @@ imagens de terceiros). Conteúdo:
 
 ---
 
+## Modo Plataforma (multi-sided products)
+
+Quando o negócio for uma **plataforma** (SaaS, marketplace, loyalty, reservas, etc.)
+em vez de um site institucional, ativa este modo em complemento ao pipeline normal.
+
+### Deteção automática
+Ativa se o input mencionar: reservas, loyalty, multi-tenant, white-label, clientes finais +
+gestão + admin, campanha/cupão/reward, ou qualquer produto com 3+ lados distintos.
+
+### Arquitetura multi-sided obrigatória
+Identifica os lados antes de construir:
+
+| Lado | Utilizadores | Objetivo |
+|------|-------------|---------|
+| **Merchant / Backoffice** | Staff, manager do negócio | Gerir operação |
+| **Customer App / PWA** | Cliente final | Interagir com a marca |
+| **Operator / Super-admin** | Dono da plataforma | Gerir tenants, planos, auditoria |
+
+Para cada lado define: objetivos, utilizadores, ecrãs principais, ações críticas, permissões,
+dados visíveis e KPIs relevantes.
+
+### Princípio de eventos auditáveis (sem dependência externa)
+Quando a plataforma não pode depender de integrações externas no MVP, o modelo de valor
+assenta em **eventos internos controláveis**:
+- Regista eventos (criação, confirmação, presença, resgate, pagamento, reativação).
+- Cada evento tem: `id`, `tenant_id`, `type`, `actor`, `timestamp`, `payload`, `status`.
+- Esses eventos são a fonte de verdade para cobrança, auditoria e analytics.
+- Nunca dependa de dados do sistema externo para provar que algo aconteceu.
+
+### Multi-tenancy e white-label
+- Isola dados por `tenant_id` em todas as tabelas.
+- Branding configurável por tenant: cores, logo, nome, domínio.
+- Módulos ativáveis/desativáveis por tenant (feature flags na config).
+- MVP: um único DB com row-level isolation; migra para schema-per-tenant se a escala exigir.
+
+### Regras de resposta para especificações de produto
+Quando o utilizador pede especificação, PRD ou desenho de produto (não código):
+- Nível PRD/SRS estratégico — nunca superficial.
+- Para cada problema → solução **e** trade-offs.
+- Para cada escolha → justifica este caminho vs alternativas.
+- Usa tabelas para comparar opções, pricing, entidades.
+- Destaca riscos críticos explicitamente.
+- Termina com **"Decisão recomendada"** que sintetiza arquitetura e modelo de negócio.
+
+---
+
 ## Princípios
 
 - **Real > genérico.** O valor desta skill é usar conteúdo e imagens verdadeiras do negócio.
