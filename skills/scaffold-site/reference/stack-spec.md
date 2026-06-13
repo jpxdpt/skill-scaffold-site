@@ -124,6 +124,24 @@ Desliga em touch/coarse pointer (`matchMedia('(pointer: coarse)')`) e em reduced
 `opacity: 0.035`, `mix-blend-mode: overlay`. Dá textura de filme a todo o site sem custo de perf.
 (Não aplicar no backoffice.)
 
+🔄 **Variante animada (modo "Materia")** para sites criativos/agência: em vez de estático,
+usa CSS `@keyframes ruido` com `steps(2)` que desloca a textura continuamente (`translate3d`).
+Mais cinematográfico. Ver `reference/material-playbook.md` §M2. Snippet: `NoiseOverlay.tsx`.
+
+**S5. Social sidebar sticky (opcional)** — `components/SocialSidebar.tsx` (`'use client'`).
+`fixed left-5 top-1/2 -translate-y-1/2 z-40`, só visível em `lg:flex`. 4-5 ícones redondos
+com borda `--stroke`, hover escala e clareia. Usar em agências/portfolios, **não** em conversão
+(lojas/restaurantes). Ver `reference/material-playbook.md` §M5. Snippet: `SocialSidebar.tsx`.
+
+**S6. Preloader anel gradiente (alternativa ao S1)** — `components/LoadingScreenRing.tsx`
+(`'use client'`). Substitui o contador+palavras por um anel CSS com múltiplas `box-shadow`
+coloridas que roda `spin 3s`. Mais minimalista. Para agências/estúdios criativos que preferem
+abstração visual. Ver `reference/material-playbook.md` §M6.
+
+**S7. Header full-width com blur (alternativa à S2)** — em vez da pill flutuante, header
+`fixed top-0 inset-x-0` com `backdrop-filter: blur(20px) saturate(180%)` só após scroll.
+Melhor para sites corporativos. Ver `reference/material-playbook.md` §M3.
+
 ### Tipografia
 **Default universal (usar sempre, salvo indicação do research):**
 - Display (títulos + palavra em itálico): **Instrument Serif** (italic 400).
@@ -210,6 +228,11 @@ NUNCA bounce/elastic). A transição revela conteúdo; não chama atenção a si
   cópia entra por baixo (`overflow-hidden`). Snippet: `LinkRollover.tsx`.
 - **T7 — Hover de card:** imagem `scale(1.04)` + label do título por máscara. **Sem emoji,
   sem ícone** na label — só o nome. `cubic-bezier(0.32,0.72,0,1)`, ~0.6s.
+- **T11 — Letras 3D com parallax de rato (só criativo/agência):** letra gigante composta por
+  3 layers SVG/HTML que se movem a velocidades diferentes no mouse move (back:×48,
+  middle:×32, front:×16). No hover, fundo inverte (escuro→claro), spotlight radial segue o
+  rato. `gsap.quickTo()` para performance. Ver `reference/material-playbook.md` §M1.
+  Snippet: `ParallaxLetterCard.tsx`.
 
 #### SITUACIONAL — só quando o layout/setor pede (não forçar)
 - **T8 — Scroll horizontal com pin:** secção `pin` no `main`, conteúdo move em `x` com `scrub`
@@ -221,6 +244,14 @@ NUNCA bounce/elastic). A transição revela conteúdo; não chama atenção a si
   `PageTransition.tsx`. (Os sites são single-page por defeito → normalmente NÃO se usa.)
 - **T10 — MorphSVG no footer:** morph do logo/forma no footer ao entrar. Detalhe de luxo,
   opcional.
+- **T12 — Marquee infinito de clientes (agências/portfolios):** fila horizontal de logos/nomes
+  que se desloca infinitamente (CSS `@keyframes marquee` ou Framer Motion `animate` loop).
+  Conteúdo duplicado para continuidade. Ver `reference/material-playbook.md` §M8.
+  Snippet: `MarqueeClients.tsx`.
+- **T13 — Tabs de categoria com indicador animado (portfolios multimédia):** indicador com
+  `layoutId` (Framer Motion) ou `Flip` (GSAP) que se move entre tabs com spring.
+  Conteúdo troca com `AnimatePresence mode:wait`. Ver `reference/material-playbook.md` §M7.
+  Snippet: `AnimatedTabs.tsx`.
 
 Todas degradam para o **estado final estático** sob `prefers-reduced-motion`.
 
@@ -278,6 +309,7 @@ model Feature { id Int @id @default(autoincrement()) {ent}Id Int  {ent} {Entidad
 - [ ] Frontend responsivo com coreografia de scroll completa.
 - [ ] **Componentes-assinatura (PARTE C):** LoadingScreen (contador+clip-path), Navbar pill,
       CustomCursor, grain overlay — todos com fallback reduced-motion / touch.
+      **+ opcionais criativo/agência:** preloader anel, social sidebar, header full-width blur.
 - [ ] Backoffice: login + CRUD + upload funcionais.
 - [ ] **Tema scoped:** site público dark (`data-theme="dark"`), admin claro
       (`data-theme="light"`) — confirma que `/admin` NÃO está escuro.

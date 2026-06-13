@@ -38,6 +38,8 @@ Transforma **um nome de negócio** num site pronto a editar:
 
 > Lê `reference/stack-spec.md` (stack + sistema visual + scroll) e
 > `reference/research-playbook.md` (como investigar e buscar imagens) **antes de construir**.
+> `reference/material-playbook.md` (padrões visuais extraídos de wearemateria.com) —
+> consulta **quando o setor for criativo/agência** para técnicas premium adicionais.
 > Componentes de animação prontos em `reference/snippets/` — **copia e adapta** de lá
 > (não reescrevas SplitText/cursor/preloader/flip-media do zero).
 > ⚠️ Antes de escrever código Next.js: lê `node_modules/next/dist/docs/` — esta versão tem breaking changes.
